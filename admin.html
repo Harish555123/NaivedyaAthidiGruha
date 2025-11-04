@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Naivedya Athidi Gruha</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      background: white;
+      width: 100%;
+      padding: 20px 0;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    h1 {
+      margin: 0;
+      color: #333;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 30px;
+      top: 20px;
+      background: #dc3545;
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: #b52a37;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 900px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #007bff;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f2f2f2;
+    }
+
+    .refresh-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .refresh-btn:hover {
+      background: #218838;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 10px;
+      text-align: center;
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard - All Bookings</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <button class="refresh-btn" onclick="loadBookings()">🔄 Refresh Data</button>
+
+  <table id="bookingsTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Guests</th>
+        <th>Room Type</th>
+        <th>Booked On</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="7" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+
+  <footer>© 2025 Naivedya Athidi Gruha | Admin Panel</footer>
+
+  <script>
+    // ✅ Restrict direct access
+    if (!localStorage.getItem("adminAuth")) {
+      alert("Access denied. Please log in as admin.");
+      window.location.href = "admin-login.html";
+    }
+
+    async function loadBookings() {
+      const tbody = document.querySelector("#bookingsTable tbody");
+      tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Loading...</td></tr>";
+
+      try {
+        const res = await fetch("/admin/bookings");
+        const data = await res.json();
+
+        if (!data.length) {
+          tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No bookings yet</td></tr>";
+          return;
+        }
+
+        tbody.innerHTML = "";
+        data.forEach(b => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${b.name}</td>
+            <td>${b.email}</td>
+            <td>${b.checkin}</td>
+            <td>${b.checkout}</td>
+            <td>${b.guests}</td>
+            <td>${b.roomType}</td>
+            <td>${new Date(b.createdAt).toLocaleString()}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;color:red;'>Error loading data</td></tr>";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("adminAuth");
+      alert("Logged out successfully.");
+      window.location.href = "admin-login.html";
+    }
+
+    window.onload = loadBookings;
+  </script>
+</body>
+</html>

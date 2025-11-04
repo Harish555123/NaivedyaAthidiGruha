@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking - Naivedya Athidi Gruha</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+    }
+    .form-container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      width: 360px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #28a745;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Book Your Stay</h2>
+    <form id="bookingForm">
+      <input type="text" placeholder="Full Name" id="bname" required>
+      <input type="email" placeholder="Email" id="bemail" required>
+
+      <label>Check-in:</label>
+      <input type="date" id="checkin" required>
+
+      <label>Check-out:</label>
+      <input type="date" id="checkout" required>
+
+      <input type="number" placeholder="Guests" id="guests" min="1" required>
+
+      <select id="roomType" required>
+        <option value="">Select Room Type</option>
+        <option value="Standard">Standard</option>
+        <option value="Deluxe">Deluxe</option>
+        <option value="Suite">Suite</option>
+      </select>
+
+      <button type="submit">Book Now</button>
+    </form>
+  </div>
+
+  <script>
+    // ✅ Auto-fill user info
+    document.addEventListener("DOMContentLoaded", () => {
+      const name = localStorage.getItem("userName");
+      const email = localStorage.getItem("userEmail");
+      if (name) document.getElementById("bname").value = name;
+      if (email) document.getElementById("bemail").value = email;
+    });
+
+    // ✅ Booking submission
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("bname").value.trim();
+      const email = document.getElementById("bemail").value.trim();
+      const checkin = document.getElementById("checkin").value;
+      const checkout = document.getElementById("checkout").value;
+      const guests = document.getElementById("guests").value;
+      const roomType = document.getElementById("roomType").value;
+
+      if (!name || !email || !checkin || !checkout || !guests || !roomType) {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      const res = await fetch("/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, checkin, checkout, guests, roomType }),
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      if (data.success) document.getElementById("bookingForm").reset();
+    });
+  </script>
+</body>
+</html>
